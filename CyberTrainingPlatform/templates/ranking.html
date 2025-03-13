@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="card-title mb-0">
+                <i data-feather="award" class="me-2"></i>Student Rankings
+            </h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th width="10%">Rank</th>
+                        <th width="40%">Student</th>
+                        <th width="20%">Score</th>
+                        <th width="20%">Status</th>
+                        {% if current_user.is_admin %}
+                        <th width="10%">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr {% if user.id == current_user.id %}class="table-primary"{% endif %}>
+                        <td>
+                            <span class="rank-badge">
+                                #{{ loop.index }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-dark d-flex align-items-center justify-content-center me-2" 
+                                     style="width: 32px; height: 32px;">
+                                    {{ user.username[0].upper() }}
+                                </div>
+                                {{ user.username }}
+                                {% if user.id == current_user.id %}
+                                <span class="badge bg-info ms-2">You</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if current_user.is_admin %}
+                                <form action="{{ url_for('update_student_score', user_id=user.id) }}" method="POST" class="d-flex align-items-center gap-2">
+                                    <input type="number" name="score" value="{{ user.score }}" 
+                                           class="form-control form-control-sm" style="width: 80px"
+                                           min="0" max="100" required>
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i data-feather="save" class="me-1"></i>Save
+                                    </button>
+                                </form>
+                            {% else %}
+                                {{ user.score }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if loop.index <= 3 %}
+                            <span class="badge bg-success">Top Performer</span>
+                            {% elif loop.index <= 10 %}
+                            <span class="badge bg-info">Rising Star</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Learning</span>
+                            {% endif %}
+                        </td>
+                        {% if current_user.is_admin %}
+                        <td>
+                            <a href="{{ url_for('analytics') }}?student_id={{ user.id }}" class="btn btn-sm btn-info">
+                                <i data-feather="bar-chart-2" class="me-1"></i>Stats
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

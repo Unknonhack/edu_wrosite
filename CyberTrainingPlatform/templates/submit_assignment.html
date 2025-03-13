@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i data-feather="upload" class="me-2"></i>Submit Assignment
+                </h4>
+                <div class="assignment-details mb-4">
+                    <h5>{{ assignment.title }}</h5>
+                    <p class="text-muted">{{ assignment.description }}</p>
+                    <div class="badge bg-{{ 'danger' if assignment.deadline < now else 'info' }}">
+                        Due: {{ assignment.deadline.strftime('%Y-%m-%d') }}
+                    </div>
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-4">
+                        <div class="upload-area p-4 border rounded text-center mb-3">
+                            <i data-feather="file" class="mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6>{{ form.submission_file.label }}</h6>
+                            <p class="text-muted small">Drag and drop your file here or click to browse</p>
+                            {{ form.submission_file(class="form-control", style="display: none;", id="file-input") }}
+                            <div id="file-name" class="mt-2"></div>
+                        </div>
+                        {% if form.submission_file.errors %}
+                            {% for error in form.submission_file.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.comments.label(class="form-label") }}
+                        {{ form.comments(class="form-control", rows="4", placeholder="Any additional comments about your submission...") }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.querySelector('.upload-area');
+    const fileInput = document.getElementById('file-input');
+    const fileName = document.getElementById('file-name');
+
+    // Handle click on upload area
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('border-primary');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('border-primary');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('border-primary');
+        fileInput.files = e.dataTransfer.files;
+        updateFileName(e.dataTransfer.files[0]);
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            updateFileName(e.target.files[0]);
+        }
+    });
+
+    function updateFileName(file) {
+        fileName.innerHTML = `
+            <div class="alert alert-info mb-0">
+                <i data-feather="file-text" class="me-2"></i>
+                ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)
+            </div>
+        `;
+        feather.replace();
+    }
+});
+</script>
+{% endblock %}

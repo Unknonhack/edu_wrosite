@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0">
+                        <i data-feather="book" class="me-2"></i>Recent Assignments
+                    </h4>
+                    <a href="{{ url_for('assignments') }}" class="btn btn-sm btn-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assignments %}
+                            <tr>
+                                <td>{{ assignment.title }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if assignment.deadline < now else 'info' }}">
+                                        {{ assignment.deadline.strftime('%Y-%m-%d') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if assignment.status == 'completed' else 'warning' }}">
+                                        {{ assignment.status }}
+                                    </span>
+                                </td>
+                                <td>{{ assignment.score }}</td>
+                                <td>
+                                    {% if assignment.status == 'pending' %}
+                                    <a href="#" class="btn btn-sm btn-primary">Submit</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i data-feather="user" class="me-2"></i>Your Profile
+                </h4>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle bg-primary text-dark d-flex align-items-center justify-content-center me-3" 
+                         style="width: 64px; height: 64px; font-size: 24px;">
+                        {{ current_user.username[0].upper() }}
+                    </div>
+                    <div>
+                        <h5 class="mb-1">{{ current_user.username }}</h5>
+                        <p class="text-muted mb-0">{{ current_user.email }}</p>
+                    </div>
+                </div>
+                <div class="row text-center mt-4">
+                    <div class="col">
+                        <h3 class="mb-2">{{ current_user.score }}</h3>
+                        <p class="text-muted mb-0">Total Score</p>
+                    </div>
+                    <div class="col">
+                        <h3 class="mb-2">{{ assignments|length }}</h3>
+                        <p class="text-muted mb-0">Assignments</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('ranking') }}" class="btn btn-primary w-100">
+                        <i data-feather="award" class="me-2"></i>View Rankings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if not current_user.is_admin %}
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">
+                    <i data-feather="trending-up" class="me-2"></i>Quick Stats
+                </h4>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Completion Rate</span>
+                    <span class="badge bg-success">85%</span>
+                </div>
+                <div class="progress mb-4" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: 85%"></div>
+                </div>
+                <a href="{{ url_for('payment') }}" class="btn btn-outline-primary w-100">
+                    <i data-feather="unlock" class="me-2"></i>Unlock Full Access
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

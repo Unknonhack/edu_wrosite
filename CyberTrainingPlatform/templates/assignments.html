@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    {% if current_user.is_admin %}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i data-feather="plus-circle" class="me-2"></i>Create Assignment
+                </h5>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.deadline.label(class="form-label") }}
+                        {{ form.deadline(class="form-control", type="date") }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0">
+                        <i data-feather="book" class="me-2"></i>Assignments
+                    </h4>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Deadline</th>
+                                {% if current_user.is_admin %}
+                                <th>Submissions</th>
+                                {% else %}
+                                <th>Status</th>
+                                {% endif %}
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assignments %}
+                            <tr>
+                                <td>{{ assignment.title }}</td>
+                                <td>{{ assignment.description }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if assignment.deadline < now else 'info' }}">
+                                        {{ assignment.deadline.strftime('%Y-%m-%d') }}
+                                    </span>
+                                </td>
+                                {% if current_user.is_admin %}
+                                <td>
+                                    {% set submission_count = assignment.submissions|length %}
+                                    <span class="badge bg-primary">{{ submission_count }} submission{{ 's' if submission_count != 1 }}</span>
+                                </td>
+                                {% else %}
+                                <td>
+                                    {% set submission = assignment.submissions|selectattr('student_id', 'equalto', current_user.id)|first %}
+                                    {% if submission %}
+                                        {% if submission.status == 'graded' %}
+                                            <span class="badge bg-success">Graded - {{ submission.score }}/100</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Submitted - Pending Grade</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Submitted</span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                                <td>
+                                    {% if current_user.is_admin %}
+                                    <a href="{{ url_for('view_submissions', assignment_id=assignment.id) }}" class="btn btn-sm btn-primary">
+                                        <i data-feather="eye" class="me-1"></i>View Submissions
+                                    </a>
+                                    {% else %}
+                                        {% set submission = assignment.submissions|selectattr('student_id', 'equalto', current_user.id)|first %}
+                                        {% if not submission %}
+                                        <a href="{{ url_for('submit_assignment', assignment_id=assignment.id) }}" class="btn btn-sm btn-primary">
+                                            <i data-feather="upload" class="me-1"></i>Submit
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

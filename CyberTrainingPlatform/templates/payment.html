@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i data-feather="shield" class="text-primary mb-3" style="width: 48px; height: 48px;"></i>
+                    <h3 class="card-title">Premium Cyber Security Training</h3>
+                    <p class="text-muted">Unlock full access to all courses and materials</p>
+                </div>
+
+                <div class="pricing-features mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        <span>Access to all premium courses</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        <span>Hands-on laboratory exercises</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        <span>Certificate upon completion</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        <span>24/7 expert support</span>
+                    </div>
+                </div>
+
+                <div class="pricing-amount text-center mb-4">
+                    <h2 class="mb-0">$99.99</h2>
+                    <p class="text-muted">One-time payment</p>
+                </div>
+
+                <form action="{{ url_for('create_checkout_session') }}" method="POST">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i data-feather="lock" class="me-2"></i>Secure Checkout
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        <i data-feather="shield" class="me-1" style="width: 14px; height: 14px;"></i>
+                        Secure payment powered by Stripe
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

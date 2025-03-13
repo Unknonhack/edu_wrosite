@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i data-feather="bar-chart-2" class="me-2"></i>Assignment Performance
+                </h4>
+                <canvas id="assignmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i data-feather="pie-chart" class="me-2"></i>Attendance Overview
+                </h4>
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i data-feather="trending-up" class="me-2"></i>Student Progress
+                </h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Assignments Completed</th>
+                                <th>Average Score</th>
+                                <th>Attendance Rate</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in student_stats %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary text-dark d-flex align-items-center justify-content-center me-2" 
+                                             style="width: 32px; height: 32px;">
+                                            {{ stat.username[0].upper() }}
+                                        </div>
+                                        {{ stat.username }}
+                                    </div>
+                                </td>
+                                <td>{{ stat.completed_assignments }}/{{ stat.total_assignments }}</td>
+                                <td>{{ "%.1f"|format(stat.average_score) }}%</td>
+                                <td>{{ "%.1f"|format(stat.attendance_rate) }}%</td>
+                                <td>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: {{ stat.progress }}%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Assignment Performance Chart
+    new Chart(document.getElementById('assignmentChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ assignment_labels|tojson }},
+            datasets: [{
+                label: 'Average Score',
+                data: {{ assignment_scores|tojson }},
+                backgroundColor: 'rgba(0, 255, 157, 0.2)',
+                borderColor: 'rgba(0, 255, 157, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Attendance Overview Chart
+    new Chart(document.getElementById('attendanceChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: {{ attendance_data|tojson }},
+                backgroundColor: [
+                    'rgba(0, 255, 157, 0.2)',
+                    'rgba(255, 99, 132, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(0, 255, 157, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        }
+    });
+});
+</script>
+{% endblock %}
